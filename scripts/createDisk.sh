@@ -12,7 +12,7 @@ LOOP_DIR=$(pwd)$LOOP
 # ensure loop directory
 [ -d $LOOP_DIR ] || mkdir -pv $LOOP_DIR
 
-# create iso img
+# make sure that the env is clean
 dd if=/dev/zero of=$RAMDISK bs=1k count=$IMAGE_SIZE
 
 echo "Plugging off VFS from loop device..."
@@ -27,11 +27,17 @@ losetup $LOOP $RAMDISK
 mkfs -t ext4 $RAMDISK
 
 mount -o loop $LOOP $LOOP_DIR
+rm -rf $LOOP_DIR/lost+found
 
 
 
+# this sections builds the final image
+#pushd $INITRD_TREE
+#cp -dpR $(ls -A | grep -Ev "sources|tools") $LOOP_DIR
+#popd
 
-echo $(losetup -l)
-echo $(df -h)
-echo $(fdisk -l)
-echo $(ls $PWD)
+# show statistics
+#df $LOOP_DIR
+
+#echo "Compressing system ramdisk image.."
+#bzip2 -c $RAMDISK > $IMAGE
