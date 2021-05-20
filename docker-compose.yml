@@ -3,6 +3,6 @@ services:
   lfs:
     build: .
     volumes:
-      - "./logs:/logs"
-      - "./bin:/lfs"
+      - "./logs:/mnt/lfs/logs" # Use LFS locations because the chroot env is not aware of the parent dirs
+      - "./output:/mnt/lfs/output"
     privileged: true

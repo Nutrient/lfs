@@ -69,7 +69,16 @@ strip --strip-unneeded $LFS/tools/bin/*
 
 # Create a backup of the temporary tools
 
-cd $LFS && tar -cJpf $HOME/lfs-temp-tools-10.1.tar.xz .
+cd $LFS && tar --exclude='./output' -cJpf $LFS/output/lfs-temp-tools-10.1.tar.xz .
+
+
+# Mount VKFS Again
+
+mount -v --bind /dev $LFS/dev
+mount -v --bind /dev/pts $LFS/dev/pts
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys
+mount -vt tmpfs tmpfs $LFS/run
 
 # To restore run
 # cd $LFS && rm -rf ./* && tar -xpf $HOME/lfs-temp-tools-10.1.tar.xz

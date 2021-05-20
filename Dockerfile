@@ -47,8 +47,8 @@ COPY [  "scripts/",    \
 RUN groupadd lfs && useradd -s /bin/bash -g lfs -m -k /dev/null lfs && echo "lfs:lfs" | chpasswd
 
 
-RUN mkdir -pv $LFS/{bin,etc,lib,sbin,usr,var,logs} && case $(uname -m) in  x86_64) mkdir -pv $LFS/lib64 ;;esac
-RUN chown -v lfs $LFS/{usr,lib,var,etc,bin,sbin,tools,logs,sources} && case $(uname -m) in  x86_64) chown -v lfs $LFS/lib64 ;;esac
+RUN mkdir -pv $LFS/{bin,etc,lib,sbin,usr,var,logs,output} && case $(uname -m) in  x86_64) mkdir -pv $LFS/lib64 ;;esac
+RUN chown -v lfs $LFS/{usr,lib,var,etc,bin,sbin,tools,logs,output,sources} && case $(uname -m) in  x86_64) chown -v lfs $LFS/lib64 ;;esac
 
 # avoid sudo password
 RUN echo "lfs ALL = NOPASSWD : ALL" >> /etc/sudoers
