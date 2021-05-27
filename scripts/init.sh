@@ -19,10 +19,10 @@ sh $LFS/tools/build.sh
 exec sudo -E -u root /bin/sh - <<EOF
 
 # change ownership of $LFS dir
-sudo chown -R root:root $LFS/{usr,lib,var,etc,bin,sbin,tools}
-case $(uname -m) in  x86_64) sudo chown -R root:root $LFS/lib64 ;;esac
+chown -vR root:root $LFS/{usr,lib,var,etc,bin,sbin,tools}
+case $(uname -m) in  x86_64) chown -vR root:root $LFS/lib64 ;;esac
 
-
+sync
 # 4. Prepare VKFS (Virtual Kernel File System)
 
 # Dirs where the FS will be mounted
@@ -53,7 +53,7 @@ chroot "$LFS" /usr/bin/env -i   \
     MAKEFLAGS="$MAKEFLAGS"      \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin \
     /bin/bash --login +h\
-    -c "/tools/chrootCommands.sh"
+    -c "sh /tools/chrootCommands.sh"
 
 # Unmount VKFS
 
@@ -63,13 +63,13 @@ umount $LFS/{sys,proc,run}
 
 # Strip debugging symbols from executables & libraries
 
-strip --strip-debug $LFS/usr/lib/*
-strip --strip-unneeded $LFS/usr/{,s}bin/*
-strip --strip-unneeded $LFS/tools/bin/*
+strip --strip-debug $LFS/usr/lib/* > /logs/strip 2>&1
+strip --strip-unneeded $LFS/usr/{,s}bin/* >> /logs/strip 2>&1
+strip --strip-unneeded $LFS/tools/bin/* >> /logs/strip 2>&1
 
 # Create a backup of the temporary tools
 
-cd $LFS && tar --exclude='./output' -cJpf $LFS/output/lfs-temp-tools-10.1.tar.xz .
+#cd $LFS && tar --exclude='./output' --exclude='./tools/*.sh' -cJpf $LFS/output/lfs-temp-tools-10.1.tar.xz .
 
 
 # Mount VKFS Again
@@ -81,7 +81,7 @@ mount -vt sysfs sysfs $LFS/sys
 mount -vt tmpfs tmpfs $LFS/run
 
 # To restore run
-# cd $LFS && rm -rf ./* && tar -xpf $HOME/lfs-temp-tools-10.1.tar.xz
+# cd $LFS && rm -rf ./* && tar -xpf $LFS/output/lfs-temp-tools-10.1.tar.xz
 
 # 999. Mount dir & create image
 #sh ./scripts/createDisk.sh > /logs/createDisk.log

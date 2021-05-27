@@ -1,4 +1,4 @@
-FROM debian
+FROM debian:buster
 
 # Install required libs
 RUN apt-get update && \
@@ -38,8 +38,12 @@ RUN mkdir -pv $LFS/sources && chmod -v a+wt $LFS/sources
 RUN mkdir -pv $LFS/tools
 
 COPY libs/ $LFS/sources/
-COPY [  "scripts/",    \
-        "/$LFS/tools"  ]
+COPY [  "scripts/build.sh",             \
+        "scripts/versionVerify.sh",     \
+        "scripts/chrootCommands.sh",    \
+        "scripts/chrootCommands-2.sh",  \
+        "scripts/init.sh",              \
+        "/$LFS/tools/"                  ]
 
 
 

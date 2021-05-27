@@ -56,9 +56,9 @@ nogroup:x:99:
 users:x:999:
 EOF
 
-echo "tester:x:$(ls -n $(tty) | cut -d" " -f3):101::/home/tester:/bin/bash" >> /etc/passwd
+(echo "tester:x:1000:101::/home/tester:/bin/bash" >> /etc/passwd) > /logs/install-user 2>&1
 echo "tester:x:101:" >> /etc/group
-install -o tester -d /home/tester
+install -o tester -d /home/tester >> /logs/install-user 2>&1
 
 # for manual testing & just for reference (remove i have no name prompt)
 # exec /bin/bash --login +h

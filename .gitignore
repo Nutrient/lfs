@@ -1,3 +1,7 @@
-libs/
+libs/**
 logs/
 output/
+
+# Do not exclude utility files
+!libs/wget-list
+!libs/md5sums
