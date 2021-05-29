@@ -49,6 +49,7 @@ fi
 chroot "$LFS" /usr/bin/env -i   \
     HOME=/root                  \
     TERM="$TERM"                \
+    LC_ALL=$LC_ALL              \
     PS1='(lfs chroot) \u:\w\$ ' \
     MAKEFLAGS="$MAKEFLAGS"      \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin \
@@ -79,6 +80,16 @@ mount -v --bind /dev/pts $LFS/dev/pts
 mount -vt proc proc $LFS/proc
 mount -vt sysfs sysfs $LFS/sys
 mount -vt tmpfs tmpfs $LFS/run
+
+chroot "$LFS" /usr/bin/env -i   \
+    HOME=/root                  \
+    LC_ALL=$LC_ALL              \
+    TERM="$TERM"                \
+    PS1='(lfs chroot) \u:\w\$ ' \
+    MAKEFLAGS="$MAKEFLAGS"      \
+    PATH=/bin:/usr/bin:/sbin:/usr/sbin \
+    /bin/bash --login +h\
+    -c "sh /tools/chrootCommands-2.sh"
 
 # To restore run
 # cd $LFS && rm -rf ./* && tar -xpf $LFS/output/lfs-temp-tools-10.1.tar.xz

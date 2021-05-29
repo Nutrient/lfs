@@ -9,6 +9,9 @@ RUN apt-get update && \
     make \
     python3 \
     texinfo \
+    libelf-dev  \
+    libssl-dev  \
+    bc          \
     sudo
 
 # Create a symbolic link to bash

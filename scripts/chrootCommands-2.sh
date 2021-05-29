@@ -601,16 +601,16 @@ sh Configure -des                                         \
              -Dpager="/usr/bin/less -isR"                 \
              -Duseshrplib                                 \
              -Dusethreads                                   &&  \
-make && make test && make install                           &&  \
-unset BUILD_ZLIB BUILD_BZIP2 ) >  /logs/perl-2 2>&1           &&  \
+make && make test || true && make install                   &&  \
+unset BUILD_ZLIB BUILD_BZIP2 ) >  /logs/perl-2 2>&1         &&  \
 rm -rf sources/perl-*/
 
 # Install xml
 
-( cd sources && tar -xf XML-Parser-*.tar.gz && cd XML-Parser-*/         &&  \
+( cd sources && tar -xf XML-Parser-*.tar.gz && cd XML-*/         &&  \
 perl Makefile.PL                                                        &&  \
-make && make test && make isntall ) > /logs/xml-parser 2>&1             &&  \
-rm -rf sources/XML-Parser-*/
+make && make test || true && make install ) > /logs/xml-parser 2>&1     &&  \
+rm -rf sources/XML-*/
 
 # Install intltool
 
@@ -618,7 +618,7 @@ rm -rf sources/XML-Parser-*/
 sed -i 's:\\\${:\\\$\\{:' intltool-update.in                        &&  \
 ./configure --prefix=/usr                                           &&  \
 make && make check && make install                                  &&  \
-install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO ) > /logs/xml-parser 2>&1 && \
+install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO ) > /logs/intltool 2>&1 && \
 rm -rf sources/intltool-*/
 
 # Install autoconf
@@ -631,7 +631,7 @@ rm -rf sources/autoconf-*/
 ( cd sources && tar -xf automake-*.tar.xz && cd automake-*/         &&  \
 sed -i "s/''/etags/" t/tags-lisp-space.sh                           &&  \
 ./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.16.3   &&  \
-make && make check && make install ) > /logs/automake 2>&1          &&  \
+make && make check || true && make install ) > /logs/automake 2>&1          &&  \
 rm -rf sources/automake-*/
 
 # Install kmod
@@ -669,28 +669,28 @@ make && make check && make install ) > /logs/libffi 2>&1            &&  \
 rm -rf sources/libffi-*/                                            &&  \
 
 # Install opensll
-( cd sources && tar -xf openssl-*.tar.gz && cd opensll-*/           &&  \
+( cd sources && tar -xf openssl-*.tar.gz && cd openssl-*/           &&  \
 ./config --prefix=/usr         \
          --openssldir=/etc/ssl \
          --libdir=lib          \
          shared                \
          zlib-dynamic                                               &&  \
-make && make test                                                   &&  \
+make && make test || true                                           &&  \
 sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile            &&  \
 make MANSUFFIX=ssl install                                          &&  \
 mv -v /usr/share/doc/openssl /usr/share/doc/openssl-1.1.1j          &&  \
-cp -vfr doc/* /usr/share/doc/openssl-1.1.1j ) > /logs/libffi 2>&1   &&  \
-rm -rf sources/opensll-*/
+cp -vfr doc/* /usr/share/doc/openssl-1.1.1j ) > /logs/openssl 2>&1   &&  \
+rm -rf sources/openssl-*/
 
 # Install python
 
-( cd sources && tar -xf Python-*.tar.gz && cd Python-*/           &&  \
+( cd sources && tar -xf Python-*.tar.xz && cd Python-*/           &&  \
 ./configure --prefix=/usr       \
             --enable-shared     \
             --with-system-expat \
             --with-system-ffi   \
             --with-ensurepip=yes                                  &&  \
-make && make test && make install                                 &&  \
+make && make test || true && make install                         &&  \
 install -v -dm755 /usr/share/doc/python-3.9.2/html                &&  \
 tar --strip-components=1  \
     --no-same-owner       \
@@ -818,13 +818,13 @@ rm -rf sources/gzip-*/
 
 # Install iproutes2
 
-( cd sources && tar -xf iproutes2-*.tar.xz && cd iproutes2-*/   &&  \
+( cd sources && tar -xf iproute2-*.tar.xz && cd iproute2-*/   &&  \
 sed -i /ARPD/d Makefile                                         &&  \
 rm -fv man/man8/arpd.8                                          &&  \
 sed -i 's/.m_ipt.o//' tc/Makefile                               &&  \
 make                                                            &&  \
-make DOCDIR=/usr/share/doc/iproute2-5.10.0 install ) > /logs/iproutes2 2>&1 &&  \
-rm -rf sources/iproutes2-*/
+make DOCDIR=/usr/share/doc/iproute2-5.10.0 install ) > /logs/iproute2 2>&1 &&  \
+rm -rf sources/iproute2-*/
 
 # Install kbd, will not install docs
 ( cd sources && tar -xf kbd-*.tar.xz && cd kbd-*/     &&  \
@@ -874,7 +874,7 @@ rm -rf sources/man-*/
 FORCE_UNSAFE_CONFIGURE=1  \
 ./configure --prefix=/usr \
             --bindir=/bin                             &&  \
-make && make check && make install                    &&  \
+make && make check || true && make install                    &&  \
 make -C doc install-html docdir=/usr/share/doc/tar-1.34 ) > /logs/tar 2>&1     &&  \
 rm -rf sources/tar-*/
 
@@ -891,7 +891,7 @@ echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h &&  \
 ./configure --prefix=/usr                                   &&  \
 make                                                        &&  \
 chown -Rv tester .                                          &&  \
-su tester -c "LANG=en_US.UTF-8 make -j1 test" &> vim-test.log &&  \
+su tester -c "LANG=en_US.UTF-8 make -j1 test"               &&  \
 make install                                                  &&  \
 ln -sv vim /usr/bin/vi                                        &&  \
 for L in  /usr/share/man/{,*/}man1/vim.1; do
@@ -933,7 +933,7 @@ rm -rf sources/vim-*/
 make                                                      &&  \
 mkdir -pv /lib/udev/rules.d                               &&  \
 mkdir -pv /etc/udev/rules.d                               &&  \
-make check && make install                                &&  \
+make check || true && make install                                &&  \
 tar -xvf ../udev-lfs-20171102.tar.xz                      &&  \
 make -f udev-lfs-20171102/Makefile.lfs install            &&  \
 udevadm hwdb --update ) > /logs/eudev 2>&1                &&  \
@@ -948,7 +948,7 @@ rm -rf sources/eudev-*/
             --docdir=/usr/share/doc/procps-ng-3.3.17 \
             --disable-static                         \
             --disable-kill                                  &&  \
-make && make check && make install                          &&  \
+make && make check || true && make install                          &&  \
 mv -v /usr/lib/libprocps.so.* /lib                          &&  \
 ln -sfv ../../lib/$(readlink /usr/lib/libprocps.so) /usr/lib/libprocps.so ) > /logs/procpsng 2>&1 &&  \
 rm -rf sources/procps-*/
@@ -984,7 +984,7 @@ mkdir -v build && cd build &&  \
              --disable-libuuid       \
              --disable-uuidd         \
              --disable-fsck                                       &&  \
-make && make check && make install                                &&  \
+make && make check || true && make install                                &&  \
 rm -fv /usr/lib/{libcom_err,libe2p,libext2fs,libss}.a             &&  \
 gunzip -v /usr/share/info/libext2fs.info.gz                       &&  \
 install-info --dir-file=/usr/share/info/dir /usr/share/info/libext2fs.info  &&  \
