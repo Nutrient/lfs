@@ -49,7 +49,6 @@ fi
 chroot "$LFS" /usr/bin/env -i   \
     HOME=/root                  \
     TERM="$TERM"                \
-    LC_ALL=$LC_ALL              \
     PS1='(lfs chroot) \u:\w\$ ' \
     MAKEFLAGS="$MAKEFLAGS"      \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin \
@@ -64,9 +63,9 @@ umount $LFS/{sys,proc,run}
 
 # Strip debugging symbols from executables & libraries
 
-strip --strip-debug $LFS/usr/lib/* > /logs/strip 2>&1
-strip --strip-unneeded $LFS/usr/{,s}bin/* >> /logs/strip 2>&1
-strip --strip-unneeded $LFS/tools/bin/* >> /logs/strip 2>&1
+strip --strip-debug $LFS/usr/lib/* > $LFS/logs/strip 2>&1
+strip --strip-unneeded $LFS/usr/{,s}bin/* >> $LFS/logs/strip 2>&1
+strip --strip-unneeded $LFS/tools/bin/* >> $LFS/logs/strip 2>&1
 
 # Create a backup of the temporary tools
 
@@ -83,7 +82,6 @@ mount -vt tmpfs tmpfs $LFS/run
 
 chroot "$LFS" /usr/bin/env -i   \
     HOME=/root                  \
-    LC_ALL=$LC_ALL              \
     TERM="$TERM"                \
     PS1='(lfs chroot) \u:\w\$ ' \
     MAKEFLAGS="$MAKEFLAGS"      \
@@ -93,6 +91,18 @@ chroot "$LFS" /usr/bin/env -i   \
 
 # To restore run
 # cd $LFS && rm -rf ./* && tar -xpf $LFS/output/lfs-temp-tools-10.1.tar.xz
+
+
+chroot "$LFS" /usr/bin/env -i   \
+    HOME=/root                  \
+    TERM="$TERM"                \
+    PS1='(lfs chroot) \u:\w\$ ' \
+    MAKEFLAGS="$MAKEFLAGS"      \
+    PATH=/bin:/usr/bin:/sbin:/usr/sbin \
+    /bin/bash --login \
+    -c "sh /tools/chrootCommands-3.sh"
+
+
 
 # 999. Mount dir & create image
 #sh ./scripts/createDisk.sh > /logs/createDisk.log

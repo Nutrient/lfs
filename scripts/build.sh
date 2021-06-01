@@ -83,7 +83,6 @@ $LFS/tools/libexec/gcc/$LFS_TGT/10.2.0/install-tools/mkheaders
 # Compile Libstdc++
 
 ( tar -xf gcc-*.tar.xz && cd gcc-*/ &&\
-case $(uname -m) in  x86_64)    sed -e '/m64=/s/lib64/lib/' -i.orig gcc/config/i386/t-linux64 ;;esac && \
 mkdir -v build && cd build && \
 time {  ../libstdc++-v3/configure       \
         --host=$LFS_TGT                 \

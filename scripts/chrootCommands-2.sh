@@ -24,7 +24,7 @@ time {  ../configure                    \
         --enable-kernel=3.2             \
         --enable-stack-protector=strong \
         --with-headers=/usr/include     \
-        libc_cv_slibdir=/lib && make && make check && \
+        libc_cv_slibdir=/lib && make && make check || true && \
         touch /etc/ld.so.conf && \
         sed '/test-installation/s@$(PERL)@echo not running@' -i ../Makefile &&\
         make install && \
@@ -690,7 +690,9 @@ rm -rf sources/openssl-*/
             --with-system-expat \
             --with-system-ffi   \
             --with-ensurepip=yes                                  &&  \
-make && make test || true && make install                         &&  \
+make                                                              &&  \
+#make test || true                                                 &&  \
+make install                                                      &&  \
 install -v -dm755 /usr/share/doc/python-3.9.2/html                &&  \
 tar --strip-components=1  \
     --no-same-owner       \
@@ -735,7 +737,7 @@ FORCE_UNSAFE_CONFIGURE=1 ./configure \
 make && make NON_ROOT_USERNAME=tester check-root                        &&  \
 echo "dummy:x:102:tester" >> /etc/group                                 &&  \
 chown -Rv tester .                                                      &&  \
-su tester -c "PATH=$PATH make RUN_EXPENSIVE_TESTS=yes check"            &&  \
+su tester -c "PATH=$PATH make RUN_EXPENSIVE_TESTS=yes check || true"            &&  \
 sed -i '/dummy/d' /etc/group                                            &&  \
 make install                                                            &&  \
 mv -v /usr/bin/{cat,chgrp,chmod,chown,cp,date,dd,df,echo} /bin          &&  \
@@ -801,7 +803,7 @@ sed "s/gold-version/& -R .note.gnu.property/" \
             --disable-werror                          &&  \
 make && make install                                  &&  \
 mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions ) > /logs/grub 2>&1 && \
-rm -rf sources/groff-*/
+rm -rf sources/grub-*/
 
 # Install less
 ( cd sources && tar -xf less-*.tar.gz && cd less-*/   &&  \
@@ -875,7 +877,7 @@ FORCE_UNSAFE_CONFIGURE=1  \
 ./configure --prefix=/usr \
             --bindir=/bin                             &&  \
 make && make check || true && make install                    &&  \
-make -C doc install-html docdir=/usr/share/doc/tar-1.34 ) > /logs/tar 2>&1     &&  \
+make -C doc install-html docdir=/usr/share/doc/tar-1.34 ) > /logs/tar-2 2>&1     &&  \
 rm -rf sources/tar-*/
 
 # Install texinfo
@@ -886,37 +888,60 @@ make TEXMF=/usr/share/texmf install-tex ) > /logs/texinfo-2 2>&1     &&  \
 rm -rf sources/texinfo-*/
 
 # Install vim
-( cd sources && tar -xf vim-*.tar.gz && cd vim-*/     &&  \
-echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h &&  \
-./configure --prefix=/usr                                   &&  \
-make                                                        &&  \
-chown -Rv tester .                                          &&  \
-su tester -c "LANG=en_US.UTF-8 make -j1 test"               &&  \
-make install                                                  &&  \
-ln -sv vim /usr/bin/vi                                        &&  \
-for L in  /usr/share/man/{,*/}man1/vim.1; do
-    ln -sv vim.1 $(dirname $L)/vi.1
-done                                                          &&  \
-ln -sv ../vim/vim82/doc /usr/share/doc/vim-8.2.2433           &&  \
-cat > /etc/vimrc << "EOF"
-" Begin /etc/vimrc
+# ( cd sources && tar -xf vim-*.tar.gz && cd vim-*/     &&  \
+# echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h &&  \
+# ./configure --prefix=/usr                                   &&  \
+# make                                                        &&  \
+# chown -Rv tester .                                          &&  \
+# su tester -c "LANG=en_US.UTF-8 make -j1 test" &> /logs/vim-test.log &&  \
+# make install                                                  &&  \
+# ln -sv vim /usr/bin/vi                                        &&  \
+# for L in  /usr/share/man/{,*/}man1/vim.1; do
+#     ln -sv vim.1 $(dirname $L)/vi.1
+# done                                                          &&  \
+# ln -sv ../vim/vim82/doc /usr/share/doc/vim-8.2.2433           &&  \
+# cat > /etc/vimrc << "EOF"
+# " Begin /etc/vimrc
 
-" Ensure defaults are set before customizing settings, not after
-source $VIMRUNTIME/defaults.vim
-let skip_defaults_vim=1
+# " Ensure defaults are set before customizing settings, not after
+# source $VIMRUNTIME/defaults.vim
+# let skip_defaults_vim=1
 
-set nocompatible
-set backspace=2
-set mouse=
-syntax on
-if (&term == "xterm") || (&term == "putty")
-  set background=dark
-endif
+# set nocompatible
+# set backspace=2
+# set mouse=
+# syntax on
+# if (&term == "xterm") || (&term == "putty")
+#   set background=dark
+# endif
 
-" End /etc/vimrc
+# " End /etc/vimrc
+# EOF
+# ) > /logs/vim 2>&1     &&  \
+# rm -rf sources/vim-*/
+
+# Install nano instead of vim
+
+( cd sources && tar -xf nano-*.tar.xz && cd nano-*/     &&  \
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --enable-utf8     \
+            --docdir=/usr/share/doc/nano-5.6            &&  \
+make && make install                                    &&  \
+install -v -m644 doc/{nano.html,sample.nanorc} /usr/share/doc/nano-5.6  &&  \
+cat > /etc/nanorc << "EOF"
+set autoindent
+set constantshow
+set fill 72
+set historylog
+set multibuffer
+set positionlog
+set quickblank
+set regexp
+set suspend
 EOF
-) > /logs/vim 2>&1     &&  \
-rm -rf sources/vim-*/
+) > /logs/nano 2>&1     &&  \
+rm -rf sources/nano-*/
 
 # Install eudev
 ( cd sources && tar -xf eudev-*.tar.gz && cd eudev-*/     &&  \
@@ -1025,3 +1050,36 @@ rm -rf sources/sysvinit-*/
 
 
 
+# Separate this section as optional, remove debugging symbols
+
+save_lib="ld-2.33.so libc-2.33.so libpthread-2.33.so libthread_db-1.0.so"
+
+( cd /lib && \
+for LIB in $save_lib; do
+    objcopy --only-keep-debug $LIB $LIB.dbg
+    strip --strip-unneeded $LIB
+    objcopy --add-gnu-debuglink=$LIB.dbg $LIB
+done )
+
+save_usrlib="libquadmath.so.0.0.0 libstdc++.so.6.0.28
+             libitm.so.1.0.0 libatomic.so.1.2.0"
+
+( cd /usr/lib && \
+for LIB in $save_usrlib; do
+    objcopy --only-keep-debug $LIB $LIB.dbg
+    strip --strip-unneeded $LIB
+    objcopy --add-gnu-debuglink=$LIB.dbg $LIB
+done )
+
+unset LIB save_lib save_usrlib
+
+find /usr/lib -type f -name \*.a \
+   -exec strip --strip-debug {} ';' >> /logs/strip 2>&1
+
+find /lib /usr/lib -type f -name \*.so* ! -name \*dbg \
+   -exec strip --strip-unneeded {} ';' >> /logs/strip 2>&1
+
+find /{bin,sbin} /usr/{bin,sbin,libexec} -type f \
+    -exec strip --strip-all {} ';' >> /logs/strip 2>&1
+
+rm -rf /tmp/*

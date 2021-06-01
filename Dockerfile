@@ -2,6 +2,7 @@ FROM debian:buster
 
 # Install required libs
 RUN apt-get update && \
+    apt-get upgrade -y &&  \
     apt-get install  -y \
     build-essential\
     bison\
@@ -67,10 +68,10 @@ WORKDIR $LFS/sources
 RUN [[ ! -e /etc/bash.bashrc ]] || mv -v /etc/bash.bashrc /etc/bash.bashrc.NOUSE
 
 
+USER lfs
 COPY [  "config/.bash_profile", \
         "config/.bashrc",       \
         "/home/lfs/"            ]
-
-USER lfs
+RUN source ~/.bash_profile
 
 #ENTRYPOINT ["bash", "./scripts/init.sh"]
