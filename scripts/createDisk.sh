@@ -1,6 +1,24 @@
 #!/bin/bash
 set -e
 
+mkdir -v isolinux
+
+( tar -xf syslinux-*.tar.xz && cd syslinux-*/   &&  \
+
+# copy needed syslinux binaries
+cp bios/core/isolinux.bin ../isolinux/isolinux.bin &&  \
+cp bios/com32/elflink/ldlinux/ldlinux.c32 ../isolinux/ldlinux.c32) > $LFS/logs/syslinux 2>&1 &&  \
+rm -rf syslinux-*/
+
+cat > isolinux/isolinux.cfg <<"EOF"
+PROMT 0
+DEFAULT arch
+LABEL arch
+    KERNEL vmlinuz
+    APPEND initrd=ramdisk.img root=/dev/ram0 3
+EOF
+
+
 RAMDISK=$(pwd)/ramdisk
 LOOP_DIR=$(pwd)$LOOP
 
@@ -32,12 +50,37 @@ rm -rf $LOOP_DIR/lost+found
 
 
 # this sections builds the final image
-#pushd $INITRD_TREE
-#cp -dpR $(ls -A | grep -Ev "sources|tools") $LOOP_DIR
-#popd
+pushd $INITRD_TREE
+cp -dpR $(ls -A | grep -Ev "sources|tools|logs|output") $LOOP_DIR
+popd
 
 # show statistics
-#df $LOOP_DIR
+df $LOOP_DIR
 
-#echo "Compressing system ramdisk image.."
-#bzip2 -c $RAMDISK > $IMAGE
+echo "Compressing system ramdisk image.."
+bzip2 -c $RAMDISK > $IMAGE
+
+cp -v $IMAGE $LFS/output/
+
+umount $LOOP_DIR
+losetup -d $LOOP
+rm -rf $LOOP_DIR
+rm -f $RAMDISK
+
+
+# Create iso
+
+cp $LFS/boot/vmlinuz-* isolinux/vmlinuz
+
+cp -Rv isolinux/ $LFS/output/
+cp -v $IMAGE $LFS/output/
+
+# build iso
+pushd $LFS/output/
+genisoimage -o lfs.iso                \
+            -b isolinux/isolinux.bin  \
+            -c isolinux/boot.cat      \
+            -no-emul-boot             \
+            -boot-load-size 4         \
+            -boot-info-table .
+popd

@@ -104,8 +104,14 @@ chroot "$LFS" /usr/bin/env -i   \
 
 
 
+# Unmount VKFS
+
+umount -v $LFS/dev{/pts,}
+umount -v $LFS/{sys,proc,run}
+umount -v $LFS
+
 # 999. Mount dir & create image
-#sh ./scripts/createDisk.sh > /logs/createDisk.log
+sh ./scripts/createDisk.sh > /logs/createDisk.log
 EOF
 
 

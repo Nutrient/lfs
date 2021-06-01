@@ -13,6 +13,7 @@ RUN apt-get update && \
     libelf-dev  \
     libssl-dev  \
     bc          \
+    genisoimage \
     sudo
 
 # Create a symbolic link to bash
@@ -28,8 +29,8 @@ ENV INITRD_TREE=/mnt/lfs
 ENV LOOP=/dev/loop2
 # In KBs (10GB)
 #ENV IMAGE_SIZE=10000000
-# 1GB for testing
-ENV IMAGE_SIZE=1000000
+# 5GB for testing
+ENV IMAGE_SIZE=5000000
 
 
 # output image
@@ -46,6 +47,7 @@ COPY [  "scripts/build.sh",             \
         "scripts/versionVerify.sh",     \
         "scripts/chrootCommands.sh",    \
         "scripts/chrootCommands-2.sh",  \
+        "scripts/chrootCommands-3.sh",  \
         "scripts/init.sh",              \
         "/$LFS/tools/"                  ]
 

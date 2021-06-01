@@ -259,6 +259,11 @@ set bell-style none
 "\e[H": beginning-of-line
 "\e[F": end-of-line
 
+set visible-stats on
+set show-all-if-ambiguous on
+set completion-ignore-case on
+set print-completions-horizontally off
+
 # End /etc/inputrc
 EOF
 
@@ -272,3 +277,69 @@ cat > /etc/shells << "EOF"
 
 # End /etc/shells
 EOF
+
+# Create fstab file
+
+cat > /etc/fstab << "EOF"
+# Begin /etc/fstab
+
+# file system  mount-point  type     options             dump  fsck
+#                                                              order
+
+/dev/ram       /            auto     defaults            1     1
+proc           /proc        proc     nosuid,noexec,nodev 0     0
+sysfs          /sys         sysfs    nosuid,noexec,nodev 0     0
+devpts         /dev/pts     devpts   gid=5,mode=620      0     0
+tmpfs          /run         tmpfs    defaults            0     0
+devtmpfs       /dev         devtmpfs mode=0755,nosuid    0     0
+
+# End /etc/fstab
+EOF
+
+# Instal linux kernel
+
+( cd sources && tar -xf linux-*.tar.xz && cd linux-*/           &&  \
+chown -R 0:0 .                                                  &&  \
+make mrproper && make defconfig && make && make modules_install &&  \
+cp -iv arch/x86/boot/bzImage /boot/vmlinuz-5.10.17-lfs-10.1     &&  \
+cp -iv System.map /boot/System.map-5.10.17                      &&  \
+cp -iv .config /boot/config-5.10.17                             &&  \
+install -d /usr/share/doc/linux-5.10.17                         &&  \
+cp -r Documentation/* /usr/share/doc/linux-5.10.17              &&  \
+install -v -m755 -d /etc/modprobe.d
+cat > /etc/modprobe.d/usb.conf << "EOF"
+# Begin /etc/modprobe.d/usb.conf
+
+install ohci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i ohci_hcd ; true
+install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
+
+# End /etc/modprobe.d/usb.conf
+EOF
+) > /logs/linux-kernel 2>&1 &&  \
+rm -rf sources/linux-*/
+
+
+echo 10.1 > /etc/lfs-release
+
+cat > /etc/lsb-release << "EOF"
+DISTRIB_ID="Linux From Scratch"
+DISTRIB_RELEASE="10.1"
+DISTRIB_CODENAME="LiaOS"
+DISTRIB_DESCRIPTION="Linux From Scratch"
+EOF
+
+cat > /etc/os-release << "EOF"
+NAME="Linux From Scratch"
+VERSION="10.1"
+ID=lfs
+PRETTY_NAME="Linux From Scratch 10.1"
+VERSION_CODENAME="LiaOS"
+EOF
+
+
+# define empty password for root
+cat > /etc/shadow << "EOF"
+root::18779:0:::::
+EOF
+
+# TODO: define a login logo
