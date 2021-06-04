@@ -110,8 +110,11 @@ umount -v $LFS/dev{/pts,}
 umount -v $LFS/{sys,proc,run}
 umount -v $LFS
 
+
+( cd $LFS && tar --exclude='./output' --exclude='./tools/*.sh' -cJpf $LFS/output/lfs-final-10.1.tar.xz .)
+# (cd $LFS && tar -xpf $LFS/output/lfs-final-10.1.tar.xz)
 # 999. Mount dir & create image
-sh ./scripts/createDisk.sh > /logs/createDisk.log
+sh $LFS/tools/createDisk.sh > $LFS/logs/createDisk.log
 EOF
 
 

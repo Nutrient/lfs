@@ -30,11 +30,11 @@ ENV LOOP=/dev/loop2
 # In KBs (10GB)
 #ENV IMAGE_SIZE=10000000
 # 5GB for testing
-ENV IMAGE_SIZE=5000000
+ENV IMAGE_SIZE=2000000
 
 
 # output image
-ENV IMAGE=ramdisk.img
+ENV IMAGE=isolinux/ramdisk.img
 
 ENV MAKEFLAGS "-j4"
 
@@ -44,6 +44,8 @@ RUN mkdir -pv $LFS/tools
 
 COPY libs/ $LFS/sources/
 COPY [  "scripts/build.sh",             \
+        "scripts/kernel.config",        \
+        "scripts/createDisk.sh",        \
         "scripts/versionVerify.sh",     \
         "scripts/chrootCommands.sh",    \
         "scripts/chrootCommands-2.sh",  \

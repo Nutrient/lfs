@@ -132,12 +132,12 @@ cat > /etc/sysconfig/rc.site <<"EOF"
 # not affect framebuffer consoles
 
 # These values, if specified here, override the defaults
-BRACKET="\\033[1;34m" # Blue
-FAILURE="\\033[1;31m" # Red
-INFO="\\033[1;36m"    # Cyan
-NORMAL="\\033[0;39m"  # Grey
-SUCCESS="\\033[1;32m" # Green
-WARNING="\\033[1;33m" # Yellow
+#BRACKET="\\033[1;34m" # Blue
+#FAILURE="\\033[1;31m" # Red
+#INFO="\\033[1;36m"    # Cyan
+#NORMAL="\\033[0;39m"  # Grey
+#SUCCESS="\\033[1;32m" # Green
+#WARNING="\\033[1;33m" # Yellow
 
 # Use a colored prefix
 # These values, if specified here, override the defaults
@@ -300,13 +300,16 @@ EOF
 
 ( cd sources && tar -xf linux-*.tar.xz && cd linux-*/           &&  \
 chown -R 0:0 .                                                  &&  \
-make mrproper && make defconfig && make && make modules_install &&  \
+make mrproper                                                   &&  \
+# make defconfig && \
+cp -v /tools/kernel.config .config                              && \
+make && make modules_install                                    &&  \
 cp -iv arch/x86/boot/bzImage /boot/vmlinuz-5.10.17-lfs-10.1     &&  \
 cp -iv System.map /boot/System.map-5.10.17                      &&  \
 cp -iv .config /boot/config-5.10.17                             &&  \
 install -d /usr/share/doc/linux-5.10.17                         &&  \
 cp -r Documentation/* /usr/share/doc/linux-5.10.17              &&  \
-install -v -m755 -d /etc/modprobe.d
+install -v -m755 -d /etc/modprobe.d                             &&  \
 cat > /etc/modprobe.d/usb.conf << "EOF"
 # Begin /etc/modprobe.d/usb.conf
 

@@ -15,7 +15,7 @@ PROMT 0
 DEFAULT arch
 LABEL arch
     KERNEL vmlinuz
-    APPEND initrd=ramdisk.img root=/dev/ram0 3
+    APPEND initrd=ramdisk.img root=/dev/ram0
 EOF
 
 
@@ -60,7 +60,6 @@ df $LOOP_DIR
 echo "Compressing system ramdisk image.."
 bzip2 -c $RAMDISK > $IMAGE
 
-cp -v $IMAGE $LFS/output/
 
 umount $LOOP_DIR
 losetup -d $LOOP
@@ -73,7 +72,6 @@ rm -f $RAMDISK
 cp $LFS/boot/vmlinuz-* isolinux/vmlinuz
 
 cp -Rv isolinux/ $LFS/output/
-cp -v $IMAGE $LFS/output/
 
 # build iso
 pushd $LFS/output/
