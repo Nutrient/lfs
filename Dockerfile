@@ -32,7 +32,7 @@ ENV IMAGE_SIZE=2000000
 # Output image
 ENV IMAGE=isolinux/ramdisk.img
 
-# make flags, note that some make jobs are hardcoded to -j1
+# Make flags, note that some make jobs are hardcoded to -j1
 ENV MAKEFLAGS "-j4"
 
 # Additional runtime variables
