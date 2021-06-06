@@ -57,7 +57,7 @@ chroot "$LFS" /usr/bin/env -i \
     PS1='(lfs chroot) \u:\w\$ ' \
     MAKEFLAGS="$MAKEFLAGS" \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin \
-    /bin/bash --login +h -c "sh /tools/chrootCommands.sh"
+    /bin/bash --login +h -c "sh /tools/build-additional-tools.sh"
 
 # 6. Unmount VKFS to strip symbols & create backup (if enabled)
 
@@ -66,9 +66,13 @@ umount $LFS/{sys,proc,run}
 
 # Strip debugging symbols from executables & libraries
 
-strip --strip-debug $LFS/usr/lib/* >$LFS/logs/strip 2>&1
-strip --strip-unneeded $LFS/usr/{,s}bin/* >>$LFS/logs/strip 2>&1
-strip --strip-unneeded $LFS/tools/bin/* >>$LFS/logs/strip 2>&1
+if [ $LFS_STRIP -eq 1 ]; then
+    echo "Stripping debugging symbols"
+    strip --strip-debug $LFS/usr/lib/* > $LFS/logs/strip 2>&1
+    strip --strip-unneeded $LFS/usr/{,s}bin/* >> $LFS/logs/strip 2>&1
+    strip --strip-unneeded $LFS/tools/bin/* >> $LFS/logs/strip 2>&1
+fi
+
 
 # Create a backup of the temporary tools
 

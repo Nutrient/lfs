@@ -44,6 +44,8 @@ ENV MAKEFLAGS "-j4"
 ENV LFS_DOCS = 1
 # Perform all make tests & checks
 ENV LFS_TEST = 1
+# Strip symbols after additional tools
+ENV LFS_STRIP = 1
 # Perform a backup after cross toolchain stage has been completed (stripped symbols)
 ENV XTOOLCHAIN_BACKUP = 1
 # Perform a backup after system build & configuration
@@ -72,7 +74,7 @@ RUN chown -v lfs $LFS/{usr,lib,var,etc,bin,sbin,tools,logs,output,sources} && ca
 
 # Avoid sudo password and keep variables
 RUN echo "lfs ALL = NOPASSWD : ALL" >> /etc/sudoers
-RUN echo 'Defaults env_keep += "LFS LFS_TGT MAKEFLAGS LFS_TEST LFS_DOCS XTOOLCHAIN_BACKUP LFS_BACKUP LOOP IMAGE_SIZE INITRD_TREE IMAGE"' >> /etc/sudoers
+RUN echo 'Defaults env_keep += "LFS LFS_TGT MAKEFLAGS LFS_TEST LFS_DOCS LFS_STRIP XTOOLCHAIN_BACKUP LFS_BACKUP LOOP IMAGE_SIZE INITRD_TREE IMAGE"' >> /etc/sudoers
 
 
 WORKDIR $LFS/sources
